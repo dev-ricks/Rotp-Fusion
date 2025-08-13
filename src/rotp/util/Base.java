@@ -939,6 +939,12 @@ public interface Base extends InputEventUtil {
         return BasePanel.gc().createCompatibleImage(w, h);
     }
     public default BufferedImage newBufferedImage(int w, int h) {
+        if (w <=0 && h <= 0) {
+            throw new IllegalArgumentException("Width and Height must be greater than 0");
+        }
+        if (w <= 0) w = h;
+        if (h <= 0) h = w;
+        // Note: a call to BasePanel.gc() will initialize the graphics configuration if it has not been initialized yet. No error checking for null required here.
         return BasePanel.gc().createCompatibleImage(w, h, Transparency.TRANSLUCENT);
     }
     public default BufferedImage asBufferedImage(Image image) {
