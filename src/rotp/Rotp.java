@@ -72,7 +72,7 @@ public final class Rotp {
     public static String jarFileName = "rotp-" + version + RotpGovernor.miniSuffix() + ".jar";
     public static String exeFileName = "rotp-" + version + ".exe";
     public static boolean countWords = false;
-    private static String startupDir;
+    static String startupDir;
     private static boolean underTest = false; // TO DO BR: set to false
     private static Boolean isIDE;
     private static JFrame frame;
@@ -318,18 +318,35 @@ public final class Rotp {
             System.exit(0);
         }
     }
-	public static void restart() {
-        File exeFile = new File(startupDir+"/"+exeFileName);
-        String execStr = exeFile.exists() ? exeFileName : actualAlloc < 0 ? "java -jar "+jarFileName : "java -Xmx"+actualAlloc+"m -jar "+jarFileName+" arg1";
 
+    public static void restart() {
+        String dir = (startupDir != null) ? startupDir : jarPath();
+        File workingDir = new File(dir);
+        String[] command = getCommandStringTokens(workingDir);
         try {
-            Runtime.getRuntime().exec(execStr);
+            Runtime.getRuntime().exec(command, null, workingDir);
             System.exit(0);
-        } catch (IOException ex) {
+        } catch (java.io.IOException ex) {
             System.err.println("Error attempting restart: ");
             ex.printStackTrace();
         }
     }
+
+    static String[] getCommandStringTokens(File workingDir) {
+        // building tokens of a command line was a good idea to break into a function for clarity and ease of change
+        File exeFile = new File(workingDir, exeFileName);
+        String[] command;
+        // sometimes when decision logic is complex, the use of if-else is clearer than a single line conditional operator, or if word wrap and character count is long but not so complex of logic
+        if (exeFile.exists()) {
+            command = new String[] { exeFile.getAbsolutePath() };
+        } else if (actualAlloc < 0) {
+            command = new String[] { "java", "-jar", jarFileName };
+        } else {
+            command = new String[] { "java", "-Xmx" + actualAlloc + "m", "-jar", jarFileName, "arg1" };
+        }
+        return command;
+    }
+
     public static void restartFromLowMemory() {
         restartWithMoreMemory(frame, true);
     }

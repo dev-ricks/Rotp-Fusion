@@ -165,7 +165,7 @@ public class RotpGovernor {
     private static String readBuild(String key) throws IOException {
         try (InputStream is = RotpGovernor.class.getResourceAsStream("/build.properties")) {
             if (is == null) {
-                throw new FileNotFoundException("Unable to find rotp-version.properties");
+                throw new FileNotFoundException("Unable to find build.properties");
             }
             Properties properties = new Properties();
             properties.load(is);
